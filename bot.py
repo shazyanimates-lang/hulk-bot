@@ -10,8 +10,8 @@ def start_bot():
 
         # Generate story
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents="Hulk in Karachi 1 line story"
+    model="gemini-1.5-pro",
+    contents="Hulk in Karachi 1 line story"
         )
 
         story = response.text
