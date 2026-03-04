@@ -1,25 +1,29 @@
 import os, requests
-from gtts import gTTS
 import google.generativeai as genai
+from gtts import gTTS
 
-# API Key Secrets se ayegi
-genai.configure(api_key=os.environ["GEMINI_KEY"])
+# API Key check
+api_key = os.environ.get("GEMINI_KEY")
+genai.configure(api_key=api_key)
 
 def start_bot():
     try:
-        # Version ka masla khatam karne ke liye simple name
-        model = genai.GenerativeModel('gemini-pro') 
-        story = model.generate_content("Hulk in Karachi 1 line epic story").text
+        # Sabse stable model use kar rahe hain
+        model = genai.GenerativeModel('gemini-1.5-flash-latest')
         
-        # Audio & Image creation
+        # Test generation
+        response = model.generate_content("Say 'Hulk is ready' in 1 line.")
+        story = response.text
+        
+        # Audio & Image
         gTTS(text=story, lang='en').save("hulk.mp3")
-        img_url = "https://image.pollinations.ai/prompt/hulk_karachi_street"
+        img_url = "https://image.pollinations.ai/prompt/hulk_karachi_city"
         with open("hulk.jpg", "wb") as f:
             f.write(requests.get(img_url).content)
         
-        print(f"Success! Story: {story}")
+        print(f"DONE! Story: {story}")
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"STILL ERROR: {e}")
 
 if __name__ == "__main__":
     start_bot()
