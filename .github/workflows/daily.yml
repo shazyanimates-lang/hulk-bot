@@ -1,27 +1,27 @@
 name: Daily Hulk Bot
-
 on:
-  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *' # Har raat 12 baje khud chalega
+  workflow_dispatch: # Manual "Run" button ke liye
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-python-version: '3.10'
 
-      - name: Clean Install
+      - name: Install Libs
         run: |
-          pip uninstall -y google-generativeai google-genai google-api-core
-          pip install --upgrade pip
-          pip install google-genai gTTS requests
+          pip install -q -U google-generativeai gTTS requests
 
       - name: Run Bot
         env:
           GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
         run: python bot.py
+        
