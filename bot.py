@@ -7,36 +7,30 @@ from gtts import gTTS
 api_key = os.environ.get("GEMINI_KEY")
 
 if not api_key:
-    print("Error: GEMINI_KEY nahi mili. Secrets check karein!")
+    print("Error: GEMINI_KEY is missing in Secrets!")
 else:
     genai.configure(api_key=api_key)
 
 def start_bot():
     try:
-        # Stable model name
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # AGAR FLASH NAHI CHAL RAHA TO YE STABLE MODEL HAI
+        model = genai.GenerativeModel('gemini-pro') 
         
-        # Story generate karna
-        prompt = "Write a 1-line funny story about Hulk eating Biryani in Karachi."
-        response = model.generate_content(prompt)
+        print("Generating story...")
+        response = model.generate_content("Hulk in Karachi 1 line story")
         story_text = response.text
-        print(f"Story: {story_text}")
-
-        # Audio File (TTS) banana
-        tts = gTTS(text=story_text, lang='en')
-        tts.save("hulk_story.mp3")
-        print("Audio saved as hulk_story.mp3")
-
-        # Image generate karna (Pollinations AI)
-        image_prompt = "Hulk sitting at a Karachi food street eating biryani, cinematic lighting, 4k"
-        img_url = f"https://image.pollinations.ai/prompt/{image_prompt.replace(' ', '_')}"
-        img_data = requests.get(img_url).content
-        with open("hulk_image.jpg", "wb") as f:
-            f.write(img_data)
-        print("Image saved as hulk_image.jpg")
-
+        
+        # Audio
+        gTTS(text=story_text, lang='en').save("hulk.mp3")
+        
+        # Image
+        img_url = "https://image.pollinations.ai/prompt/hulk_eating_biryani_karachi"
+        with open("hulk.jpg", "wb") as f:
+            f.write(requests.get(img_url).content)
+            
+        print(f"SUCCESS! Story: {story_text}")
     except Exception as e:
-        print(f"Bot mein masla aya: {e}")
+        print(f"FAILED: {e}")
 
 if __name__ == "__main__":
     start_bot()
