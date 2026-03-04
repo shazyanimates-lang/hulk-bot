@@ -6,7 +6,7 @@ import google.generativeai as genai
 genai.configure(api_key=os.environ["GEMINI_KEY"])
 
 def start_bot():
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('gemini-1.5-flash-latest')
     # AI se story likhwana
     story = model.generate_content("Write a 1-sentence epic Hulk line for Karachi streets").text
     
