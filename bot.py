@@ -10,7 +10,7 @@ def start_bot():
 
         # Generate story
         response = client.models.generate_content(
-    model="gemini-1.5-pro",
+    model = genai.GenerativeModel('gemini-pro')
     contents="Hulk in Karachi 1 line story"
         )
 
