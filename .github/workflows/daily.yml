@@ -1,23 +1,36 @@
-name: Daily Hulk Bot
+name: Generate AI Short Video
+
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Isse aap manually "Run" button daba kar video bana sakte hain
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Install FFmpeg & Libs
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-          pip install gTTS requests
-      - name: Run Bot
-        run: python bot.py
-      - name: Save Video to Repo
-        run: |
-          git config --global user.name "HulkBot"
-          git config --global user.email "bot@hulk.com"
-          git add short_video.mp4
-          git commit -m "New Daily Short Created"
-          git push
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install System Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg
+
+    - name: Install Python Libraries
+      run: |
+        pip install requests gTTS
+
+    - name: Run Script to Generate Video
+    # Yahan aapki python file ka naam bot.py hona chahiye
+      run: python bot.py 
+
+    - name: Upload Video as Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Hulk-Karachi-Short
+        path: short_video.mp4
