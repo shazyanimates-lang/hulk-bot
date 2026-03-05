@@ -14,7 +14,7 @@ jobs:
       - name: Install Tools
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg
-          pip install requests elevenlabs google-genai Pillow
+          pip install requests elevenlabs google-generativeai Pillow
       - name: Run Bot
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -24,6 +24,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Hulk-Pro-Video
+          name: Hulk-Final-Result
           path: short_video.mp4
           
