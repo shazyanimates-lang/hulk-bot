@@ -4,6 +4,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30 # 90s video ke liye ye zaroori hai
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -18,7 +19,10 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           ELEVEN_API_KEY: ${{ secrets.ELEVEN_API_KEY }}
         run: python bot.py
-      - uses: actions/upload-artifact@v4
+      - name: Upload Video
+        if: always() # Error aaye tab bhi logs check karne ke liye upload karega
+        uses: actions/upload-artifact@v4
         with:
           name: Hulk-90s-Video
           path: short_video.mp4
+          
