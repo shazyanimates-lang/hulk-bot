@@ -1,26 +1,26 @@
-name: Daily Hulk Bot
+name: Hulk Final Bot
 on:
   workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - name: Install Dependencies
+      - name: Install Tools
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg
           pip install requests gTTS Pillow
-      - name: Run Bot Script
+      - name: Run Bot
         run: python bot.py
       - name: Upload Video
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Hulk-Viral-Video
+          name: Hulk-Viral-Short
           path: short_video.mp4
           
