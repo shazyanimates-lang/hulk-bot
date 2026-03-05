@@ -23,7 +23,7 @@ jobs:
           pip install requests gTTS
 
       - name: Run Bot
-        # Aapki file ka naam bot.py hai, isliye yahan wahi hona chahiye
+        # Is line ko dhyan se dekhein, 'bot.py' hona chahiye
         run: python bot.py 
 
       - name: Upload Video Artifact
