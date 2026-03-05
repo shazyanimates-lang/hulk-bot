@@ -1,38 +1,36 @@
 name: Hulk 90s Pro Bot
-
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Taaki aap khud button daba kar run kar sakein
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-
+    timeout-minutes: 30 # 90 seconds video render hone mein time lagta hai
+    
     steps:
-
-      - name: Checkout Repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12'
 
       - name: Install Dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-          python -m pip install --upgrade pip
+          sudo apt-get update && sudo apt-get install -y ffmpeg
           pip install requests
 
-      - name: Run Bot
+      - name: Run AI Hulk Bot
         env:
-          ELEVEN_API_KEY: ${{ secrets.ELEVEN_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python bot.py
+          ELEVEN_API_KEY: ${{ secrets.ELEVEN_API_KEY }}
+        run: python bot.py # Tasalli kar lein ke aapki file ka naam bot.py hi hai
 
-      - name: Upload Video
+      - name: Upload Final Video
+        if: always() # Agar code crash bhi ho jaye toh logs mil jayein
         uses: actions/upload-artifact@v4
         with:
-          name: Hulk-90s-Video
-          path: hulk_video.mp4
+          name: Hulk-90s-Short-Video
+          path: hulk_video.mp4 # Aapke code ka output filename
+          
