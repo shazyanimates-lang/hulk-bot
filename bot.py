@@ -5,11 +5,12 @@ import time
 def generate_script():
     print("🧠 Generating AI script...")
     api_key = os.getenv("GEMINI_API_KEY")
-    # v1 API ke liye gemini-2.5-flash sabse stable hai
+    # v1 API ke liye gemini-2.5-flash
     url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key={api_key}"
 
+    # Prompt ko thoda short rakha hai taaki ElevenLabs credits bachein
     prompt = {
-        "contents": [{"parts": [{"text": "Write a funny 90 second YouTube Shorts script in Roman Urdu. Hulk is in Karachi fighting with a bus driver then buying the whole bus."}]}]
+        "contents": [{"parts": [{"text": "Write a funny Urdu story. Hulk is in Karachi fighting a bus driver. Keep it under 800 characters but very funny."}]}]
     }
 
     r = requests.post(url, json=prompt)
@@ -28,19 +29,22 @@ def generate_voice(script):
     voice_id = "pNInz6obpgDQGcFmaJgB"
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
     headers = {"Accept": "audio/mpeg", "Content-Type": "application/json", "xi-api-key": eleven_key}
-    data = {"text": script, "model_id": "eleven_multilingual_v2"}
+    
+    # Text ko mazeed trim kar diya taaki quota exceeds na ho
+    data = {"text": script[:800], "model_id": "eleven_multilingual_v2"}
+    
     r = requests.post(url, json=data, headers=headers)
-    if r.status_code != 200:
-        print("❌ ElevenLabs error:", r.text)
+    if r.status_code == 200:
+        with open("voice.mp3", "wb") as f:
+            f.write(r.content)
+        print("✅ Voice ready")
+        return True
+    else:
+        print(f"❌ ElevenLabs error: {r.text}")
         return False
-    with open("voice.mp3", "wb") as f:
-        f.write(r.content)
-    print("✅ Voice ready")
-    return True
 
 def download_image():
     print("🖼️ Downloading Hulk image...")
-    # Direct high-quality image link
     img_url = "https://w0.peakpx.com/wallpaper/559/393/HD-wallpaper-hulk-3d-hulk-superhero-green-man-marvel-avengers.jpg"
     r = requests.get(img_url)
     if r.status_code == 200:
@@ -52,21 +56,18 @@ def download_image():
 
 def create_video():
     print("🎬 Rendering video...")
-    time.sleep(5) # File system sync ke liye intezar
-    
-    # FFmpeg command optimized for GitHub Actions
+    time.sleep(2)
+    # '-t 90' video ko 90s tak kheenchega chahe voice choti ho
     cmd = (
         "ffmpeg -y -loop 1 -i hulk.jpg -i voice.mp3 -t 90 "
         "-vf \"scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1\" "
-        "-c:v libx264 -preset ultrafast -pix_fmt yuv420p -c:a aac -shortest hulk_video.mp4"
+        "-c:v libx264 -preset ultrafast -pix_fmt yuv420p -c:a aac hulk_video.mp4"
     )
-    
-    status = os.system(cmd)
-    
-    if status == 0 and os.path.exists("hulk_video.mp4"):
-        print("🎉 Video created successfully: hulk_video.mp4")
+    os.system(cmd)
+    if os.path.exists("hulk_video.mp4"):
+        print("🎉 Video created successfully!")
     else:
-        print("❌ Video creation failed or FFmpeg crashed")
+        print("❌ Video creation failed")
 
 def run_bot():
     print("🚀 AI Hulk Bot Starting...")
