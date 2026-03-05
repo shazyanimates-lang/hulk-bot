@@ -5,21 +5,20 @@ import time
 def generate_script():
     print("🧠 Generating AI script...")
     api_key = os.getenv("GEMINI_API_KEY")
-    # v1 API ke liye gemini-2.5-flash
+    # v1 API ke liye gemini-2.5-flash sabse stable hai
     url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key={api_key}"
 
-    # Prompt ko thoda short rakha hai taaki ElevenLabs credits bachein
+    # Choti script taaki credits bachein magar video lambi bane
     prompt = {
-        "contents": [{"parts": [{"text": "Write a funny Urdu story. Hulk is in Karachi fighting a bus driver. Keep it under 800 characters but very funny."}]}]
+        "contents": [{"parts": [{"text": "Write a funny Urdu story under 700 characters. Hulk is in Karachi buying a bus and fighting a driver. Dramatic style."}]}]
     }
 
     r = requests.post(url, json=prompt)
     if r.status_code != 200:
-        print("❌ Gemini Error:", r.text)
+        print(f"❌ Gemini Error: {r.text}")
         return None
 
-    data = r.json()
-    script = data["candidates"][0]["content"]["parts"][0]["text"]
+    script = r.json()["candidates"][0]["content"]["parts"][0]["text"]
     print("✅ Script ready")
     return script
 
@@ -30,8 +29,8 @@ def generate_voice(script):
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
     headers = {"Accept": "audio/mpeg", "Content-Type": "application/json", "xi-api-key": eleven_key}
     
-    # Text ko mazeed trim kar diya taaki quota exceeds na ho
-    data = {"text": script[:800], "model_id": "eleven_multilingual_v2"}
+    # Quota check ke liye safety limit
+    data = {"text": script[:700], "model_id": "eleven_multilingual_v2"}
     
     r = requests.post(url, json=data, headers=headers)
     if r.status_code == 200:
@@ -39,43 +38,46 @@ def generate_voice(script):
             f.write(r.content)
         print("✅ Voice ready")
         return True
-    else:
-        print(f"❌ ElevenLabs error: {r.text}")
-        return False
-
-def download_image():
-    print("🖼️ Downloading Hulk image...")
-    img_url = "https://w0.peakpx.com/wallpaper/559/393/HD-wallpaper-hulk-3d-hulk-superhero-green-man-marvel-avengers.jpg"
-    r = requests.get(img_url)
-    if r.status_code == 200:
-        with open("hulk.jpg", "wb") as f:
-            f.write(r.content)
-        print("✅ Image ready")
-        return True
+    print(f"❌ ElevenLabs error: {r.text}")
     return False
 
-def create_video():
-    print("🎬 Rendering video...")
+def run_bot():
+    print("🚀 AI Hulk Bot Starting...")
+    
+    script = generate_script()
+    if not script: return
+
+    if not generate_voice(script): return
+
+    # STEP 3: FAIL-SAFE IMAGE DOWNLOAD
+    print("🖼️ Downloading Hulk image...")
+    img_url = "https://w0.peakpx.com/wallpaper/559/393/HD-wallpaper-hulk-3d-hulk-superhero-green-man-marvel-avengers.jpg"
+    try:
+        img_data = requests.get(img_url, timeout=15).content
+        with open("hulk.jpg", "wb") as f:
+            f.write(img_data)
+        print("✅ Image ready")
+    except Exception as e:
+        print(f"❌ Image Download Failed: {e}")
+        return
+
+    # STEP 4: MANDATORY 90 SECONDS RENDER
+    print("🎬 Rendering 90s video (Isme time lagega)...")
     time.sleep(2)
-    # '-t 90' video ko 90s tak kheenchega chahe voice choti ho
+    
+    # Force 90 seconds regardless of audio length
     cmd = (
         "ffmpeg -y -loop 1 -i hulk.jpg -i voice.mp3 -t 90 "
         "-vf \"scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1\" "
         "-c:v libx264 -preset ultrafast -pix_fmt yuv420p -c:a aac hulk_video.mp4"
     )
-    os.system(cmd)
-    if os.path.exists("hulk_video.mp4"):
-        print("🎉 Video created successfully!")
+    
+    exit_code = os.system(cmd)
+    
+    if exit_code == 0 and os.path.exists("hulk_video.mp4"):
+        print("🎉 SUCCESS: hulk_video.mp4 is ready!")
     else:
-        print("❌ Video creation failed")
-
-def run_bot():
-    print("🚀 AI Hulk Bot Starting...")
-    script = generate_script()
-    if not script: return
-    if not generate_voice(script): return
-    if not download_image(): return
-    create_video()
+        print("❌ Video rendering failed!")
 
 if __name__ == "__main__":
     run_bot()
