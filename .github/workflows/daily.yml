@@ -1,35 +1,24 @@
 name: Daily Hulk Bot
-
 on:
-  workflow_dispatch: # Isse "Run workflow" ka button wapas aa jayega
-
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-
       - name: Install Libs
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
           pip install requests gTTS
-
       - name: Run Bot
-        # Ensure karein ke aapki file ka naam 'bot.py' hi hai
         run: python bot.py 
-
-      - name: Upload Video Artifact
+      - name: Upload Video
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Hulk-Video
           path: short_video.mp4
-          retention-days: 1
