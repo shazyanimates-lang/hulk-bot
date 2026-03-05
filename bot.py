@@ -1,50 +1,36 @@
-import requests
 import os
-import time
 from gtts import gTTS
+from PIL import Image, ImageDraw
 
 def generate_video():
     try:
-        # Step 1: Kahani (With Timeout)
-        print("⏳ Step 1: Generating story...")
-        try:
-            story_res = requests.get("https://text.pollinations.ai/Hulk_funny_Karachi_joke_1_line", timeout=15)
-            story = story_res.text if story_res.status_code == 200 else "Hulk is looking for biryani!"
-        except:
-            story = "Hulk is very hungry in Karachi!"
-        
-        print(f"Story: {story}")
+        # Step 1: Kahani (Simple Text)
+        story = "Hulk is looking for the best Biryani in Karachi!"
+        print(f"⏳ Story: {story}")
 
-        # Step 2: Audio
-        print("⏳ Step 2: Saving Audio...")
+        # Step 2: Audio (gTTS)
+        print("⏳ Saving Audio...")
         tts = gTTS(text=story, lang='en')
         tts.save("voice.mp3")
 
-        # Step 3: AI Image (With Timeout)
-        print("⏳ Step 3: Getting AI Image...")
-        img_url = f"https://image.pollinations.ai/prompt/Hulk_eating_biryani_9_16_{int(time.time())}"
-        try:
-            img_data = requests.get(img_url, timeout=20).content
-            with open("hulk.jpg", "wb") as f:
-                f.write(img_data)
-        except:
-            print("⚠️ Image generator slow hai, default use kar rahe hain.")
-            # Agar image na mile toh ye script ko rukne nahi dega
+        # Step 3: Fast Image Generation (No External API)
+        print("⏳ Generating Fast Background...")
+        img = Image.new('RGB', (1080, 1920), color=(0, 128, 0)) # Hulk Green Color
+        d = ImageDraw.Draw(img)
+        # Ek simple box ya text draw kar rahe hain taaki image khali na ho
+        d.rectangle([100, 100, 980, 1820], outline=(255, 255, 255), width=10)
+        img.save("hulk.jpg")
 
-        # Step 4: Video (The Final Force)
-        print("⏳ Step 4: Creating Video...")
-        # '-y' aur '-preset ultrafast' taaki jaldi khatam ho
-        cmd = (
-            "ffmpeg -y -loop 1 -i hulk.jpg -i voice.mp3 -c:v libx264 -t 10 "
-            "-preset ultrafast -pix_fmt yuv420p "
-            "-vf 'scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920' "
-            "-c:a aac -shortest short_video.mp4"
-        )
+        # Step 4: Video (FFmpeg with Force Exit)
+        print("⏳ Creating Video...")
+        # '-y' aur '-t 10' ensure karega ke script na ruke
+        cmd = "ffmpeg -y -loop 1 -i hulk.jpg -i voice.mp3 -c:v libx264 -t 10 -pix_fmt yuv420p -c:a aac -shortest short_video.mp4"
         os.system(cmd)
-        print("✅ SUCCESS: Video Created!")
+        
+        print("✅ SUCCESS: short_video.mp4 created!")
 
     except Exception as e:
-        print(f"❌ Critical Error: {e}")
+        print(f"❌ Error: {e}")
 
 if __name__ == "__main__":
     generate_video()
