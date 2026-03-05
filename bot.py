@@ -12,7 +12,8 @@ def generate_90s_hulk_video():
 
         gemini_key = os.getenv("GEMINI_API_KEY")
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
+        # ✅ FIXED: Changed model from gemini-1.5-flash to gemini-2.0-flash
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_key}"
 
         payload = {
             "contents": [{
@@ -23,9 +24,17 @@ def generate_90s_hulk_video():
         }
 
         res = requests.post(url, json=payload)
+
+        # ✅ ADDED: Check for API errors
+        if res.status_code != 200:
+            print(f"Gemini API Error: {res.status_code}")
+            print(res.json())
+            return
+
         script_text = res.json()['candidates'][0]['content']['parts'][0]['text']
 
         print("Script generated!")
+        print("Script:", script_text[:200], "...")
 
         # STEP 2 — ELEVENLABS VOICE
         print("Step 2: Voice generate ho rahi hai...")
@@ -56,7 +65,7 @@ def generate_90s_hulk_video():
         print("Step 4: Video render ho raha hai...")
 
         cmd = [
-            "ffmpeg",
+            "ffmpeg", "-y",
             "-loop", "1",
             "-i", "hulk.jpg",
             "-i", "voice.mp3",
