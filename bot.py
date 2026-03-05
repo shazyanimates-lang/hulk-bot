@@ -6,40 +6,30 @@ from gtts import gTTS
 
 def generate_video():
     try:
-        print("⏳ Step 1: Story generate ho rahi hai...")
-        # Pollinations AI se story fetch karna
-        story_res = requests.get("https://text.pollinations.ai/A_short_funny_joke_about_Hulk_getting_stuck_in_Karachi_traffic_1_sentence")
-        story_text = story_res.text.strip()
-        print(f"📖 Story: {story_text}")
+        print("⏳ Step 1: Story & Audio...")
+        story = requests.get("https://text.pollinations.ai/Hulk_funny_Karachi_joke_1_line").text
+        gTTS(text=story, lang='en').save("voice.mp3")
 
-        print("⏳ Step 2: Audio (Voiceover) ban raha hai...")
-        tts = gTTS(text=story_text, lang='en')
-        tts.save("voice.mp3")
-
-        print("⏳ Step 3: AI Image generate ho rahi hai...")
-        # Mobile 9:16 aspect ratio ke liye prompt
-        img_prompt = f"Hulk_in_Karachi_streets_cinematic_vertical_9_16_{int(time.time())}"
-        img_url = f"https://image.pollinations.ai/prompt/{img_prompt}"
-        
-        img_data = requests.get(img_url).content
+        print("⏳ Step 2: AI Image...")
+        img_url = f"https://image.pollinations.ai/prompt/Hulk_in_Karachi_vertical_9_16_{int(time.time())}"
         with open("hulk.jpg", "wb") as f:
-            f.write(img_data)
+            f.write(requests.get(img_url).content)
 
-        print("⏳ Step 4: FFmpeg se MP4 ban raha hai...")
-        # Ye command mobile (Termux) ke liye optimized hai
-        cmd = [
-            "ffmpeg", "-y", "-loop", "1", "-i", "hulk.jpg", "-i", "voice.mp3",
-            "-c:v", "libx264", "-tune", "stillimage", "-c:a", "aac", 
-            "-b:a", "128k", "-pix_fmt", "yuv420p", "-shortest",
-            "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920",
-            "short_video.mp4"
-        ]
-        
-        # Subprocess use karna mobile par zyada stable hai
-        subprocess.run(cmd, check=True)
-        
-        print("\n✅ MUBARAK HO! 'short_video.mp4' tayyar hai.")
-        print("📁 Aap isse apne mobile gallery mein dekh sakte hain.")
+        print("⏳ Step 3: Creating MP4...")
+        cmd = "ffmpeg -y -loop 1 -i hulk.jpg -i voice.mp3 -c:v libx264 -t 10 -pix_fmt yuv420p -vf 'scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920' -c:a aac -shortest short_video.mp4"
+        os.system(cmd)
+
+        # --- NEW: DIRECT DOWNLOAD LINK GENERATOR ---
+        print("🚀 Step 4: Generating Direct Download Link...")
+        with open("short_video.mp4", "rb") as f:
+            # Ye line video ko cloud pe upload karke link degi
+            response = requests.put("https://transfer.sh/short_video.mp4", data=f)
+            
+        if response.status_code == 200:
+            print("\n✅ VIDEO TAYYAR HAI!")
+            print(f"🔗 Download Link: {response.text}") # Is link pe click karein
+        else:
+            print("❌ Upload failed, check Artifacts in GitHub.")
 
     except Exception as e:
         print(f"❌ Error: {e}")
