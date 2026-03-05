@@ -1,7 +1,7 @@
 name: Daily Hulk Bot
 
 on:
-  workflow_dispatch: 
+  workflow_dispatch: # Isse "Run workflow" ka button wapas aa jayega
 
 jobs:
   build:
@@ -23,7 +23,7 @@ jobs:
           pip install requests gTTS
 
       - name: Run Bot
-        # Is line ko dhyan se dekhein, 'bot.py' hona chahiye
+        # Ensure karein ke aapki file ka naam 'bot.py' hi hai
         run: python bot.py 
 
       - name: Upload Video Artifact
@@ -32,4 +32,4 @@ jobs:
         with:
           name: Hulk-Video
           path: short_video.mp4
-          
+          retention-days: 1
