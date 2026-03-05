@@ -6,24 +6,34 @@ from gtts import gTTS
 
 def generate_viral_video():
     try:
-        print("⏳ Step 1: Script likhi ja rahi hai...")
-        story = "Halku ne aaj Karachi ki biryani khai aur bola, ye toh kamaal hai bhai! Phir usne Lamborghini li aur nikal gaya."
-        
-        # Audio
-        print("⏳ Step 2: Voice tayyar ho rahi hai...")
+        # Step 1: Trending Script (Text AI is usually stable)
+        print("⏳ Step 1: AI script likh raha hai...")
+        query = "Write a long dramatic 1:30 minute viral story in Roman Urdu about Hulk buying a Lamborghini in Karachi and showing it to his jealous friends."
+        try:
+            # Text generator aksar phasta nahi hai
+            res = requests.get(f"https://text.pollinations.ai/{query.replace(' ', '_')}", timeout=20)
+            story = res.text if res.status_code == 200 else "Hulk ne Karachi mein Lamborghini le li!"
+        except:
+            story = "Manager ne kaha tum gareeb ho, Hulk ne kaha dekhna ek din main Lamborghini launga. Phir Hulk ne mehnat ki aur apni shandaar car le aya."
+
+        # Step 2: Audio
+        print("⏳ Step 2: Voice generate ho rahi hai...")
         tts = gTTS(text=story, lang='hi') 
         tts.save("voice.mp3")
 
-        # Image (Direct URL taaki download fail na ho)
-        print("⏳ Step 3: Image check...")
-        img_url = "https://image.pollinations.ai/prompt/3D_Pixar_style_Hulk_in_Karachi_9_16?seed=123"
-        r = requests.get(img_url)
+        # Step 3: Reliable Image (Replacing Pollinations Image AI)
+        print("⏳ Step 3: Downloading stable image...")
+        # Hum 'Lorem Flickr' use kar rahe hain jo seedha image deta hai, koi data error nahi aata
+        img_url = f"https://loremflickr.com/1080/1920/hulk,car,action?lock={random.randint(1,1000)}"
+        
+        img_data = requests.get(img_url).content
         with open("hulk.jpg", "wb") as f:
-            f.write(r.content)
+            f.write(img_data)
+        print("✅ Image Ready!")
 
-        # Step 4: Video (Iska naam exact 'short_video.mp4' hona chahiye)
-        print("⏳ Step 4: Video render ho rahi hai (90 seconds)...")
-        # Maine preset 'ultrafast' kar diya hai taaki jaldi bane
+        # Step 4: Final Video (90 Seconds)
+        print("⏳ Step 4: Video render ho rahi hai...")
+        # 'ultrafast' taaki GitHub jaldi se video bana kar free ho jaye
         cmd = (
             "ffmpeg -y -loop 1 -i hulk.jpg -i voice.mp3 -c:v libx264 -t 90 "
             "-preset ultrafast -pix_fmt yuv420p "
@@ -32,11 +42,10 @@ def generate_viral_video():
         )
         os.system(cmd)
         
-        # Check if file exists
         if os.path.exists("short_video.mp4"):
-            print("✅ SUCCESS: short_video.mp4 ban gayi hai!")
+            print("✅ SUCCESS: Video ban gayi!")
         else:
-            print("❌ ERROR: Video file nahi mili!")
+            print("❌ Error: Video file nahi mili.")
 
     except Exception as e:
         print(f"❌ Error: {e}")
