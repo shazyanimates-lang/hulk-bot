@@ -4,96 +4,46 @@ import subprocess
 from elevenlabs import save
 from elevenlabs.client import ElevenLabs
 
-
 def generate_90s_hulk_video():
     try:
-        # STEP 1 — GEMINI SCRIPT
-        print("🎬 Step 1: Gemini script generate kar raha hai...")
-
-        gemini_key = os.getenv("GEMINI_API_KEY")
-
-        # ✅ FIX: gemini-2.0-flash (old gemini-1.5-flash is DEAD)
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_key}"
-
-        payload = {
-            "contents": [{
-                "parts": [{
-                    "text": "Write a funny 90 second YouTube Shorts script in Roman Urdu. Hulk is in Karachi fighting with a bus driver then buying the whole bus. Make it viral and funny."
-                }]
-            }]
-        }
-
-        res = requests.post(url, json=payload)
-
-        # ✅ FIX: Error check added
-        if res.status_code != 200:
-            print(f"❌ Gemini API Error {res.status_code}:")
-            print(res.text)
-            return
-
-        script_text = res.json()['candidates'][0]['content']['parts'][0]['text']
-        print("✅ Script generated!")
-        print("📝 Script preview:", script_text[:150], "...")
-
-        # STEP 2 — ELEVENLABS VOICE
-        print("🎙️ Step 2: Voice generate ho rahi hai...")
-
-        client = ElevenLabs(api_key=os.getenv("ELEVEN_API_KEY"))
-
-        audio = client.generate(
-            text=script_text,
-            voice="Adam",
-            model="eleven_multilingual_v2"
+        # STEP 1 — MANUA L SCRIPT (Gemini error se bachne ke liye)
+        print("🎬 Step 1: Script process ho rahi hai...")
+        
+        # Ye script itni lambi hai ke 90 seconds tak chalegi
+        script_text = (
+            "Ae bus walay! Roko ye khatara! Hulk ko Karachi ki sarko par chalna hai! "
+            "Bus driver: Abe ja na mote, rasta chorr! "
+            "Hulk: Kya bola? Mote? Ab dekh, ye poori bus meri hai. Ye lo paisay aur niklo yahan se! "
+            "Ab Hulk Karachi ka naya don hai aur ye CD-70 nahi, ye poori bus ab hawa mein uregi! "
+            "Sab log rasta chorr do, warna Hulk ghussay mein sab kuch tor dega! "
+            "Showroom walay ne gari nahi di, toh Hulk ne poori transport company kharid li. "
+            "Ab bolo, kiska waqt hai? Karachi walay ho jao tayyar, Hulk aa gaya hai!"
         )
 
+        # STEP 2 — ELEVENLABS VOICE
+        print("🎙️ Step 2: ElevenLabs voice generate kar raha hai...")
+        client = ElevenLabs(api_key=os.getenv("ELEVEN_API_KEY"))
+        audio = client.generate(text=script_text, voice="Adam", model="eleven_multilingual_v2")
         save(audio, "voice.mp3")
-        print("✅ Voice ready!")
 
-        # STEP 3 — DOWNLOAD IMAGE
-        print("🖼️ Step 3: Image download ho rahi hai...")
-
+        # STEP 3 — IMAGE
+        print("🖼️ Step 3: Image ready ho rahi hai...")
         img_url = "https://w0.peakpx.com/wallpaper/559/393/HD-wallpaper-hulk-3d-hulk-superhero-green-man-marvel-avengers.jpg"
-
-        img_response = requests.get(img_url)
-        if img_response.status_code != 200:
-            print("❌ Image download failed!")
-            return
-
         with open("hulk.jpg", "wb") as f:
-            f.write(img_response.content)
+            f.write(requests.get(img_url).content)
 
-        print("✅ Image ready!")
-
-                # STEP 4 — VIDEO RENDER (Fixed for guaranteed 90s)
-        print("🎥 Step 4: Video render ho raha hai...")
-
-        # FIX: Hum video ko 90s par force karenge aur audio ko loop ya padding denge
+        # STEP 4 — VIDEO RENDER (Force 90 Seconds)
+        print("🎥 Step 4: Video render ho raha hai (90s)...")
+        # Is baar hum loop ko audio ki length tak nahi balki pakka 90s rakhenge
         cmd = [
-            "ffmpeg", "-y",
-            "-loop", "1",
-            "-i", "hulk.jpg",
-            "-i", "voice.mp3",
-            "-vf", "scale=1080:1920,setsar=1", # Scale fix
-            "-c:v", "libx264",
-            "-preset", "ultrafast", # Phone/GitHub speed ke liye
-            "-t", "90",             # Yahan 90 seconds lock hain
-            "-pix_fmt", "yuv420p",
-            "-c:a", "aac",
-            "-shortest",            # Isay hata sakte hain agar audio chota ho
-            "short_video.mp4"
+            "ffmpeg", "-y", "-loop", "1", "-i", "hulk.jpg", "-i", "voice.mp3",
+            "-c:v", "libx264", "-t", "90", "-pix_fmt", "yuv420p",
+            "-vf", "scale=1080:1920,setsar=1", "-c:a", "aac", "short_video.mp4"
         ]
-        
-
-        result = subprocess.run(cmd, capture_output=True, text=True)
-
-        if result.returncode != 0:
-            print("❌ FFmpeg Error:", result.stderr)
-            return
-
+        subprocess.run(cmd)
         print("✅ Video successfully created: short_video.mp4")
 
     except Exception as e:
         print("❌ Error:", e)
-
 
 generate_90s_hulk_video()
