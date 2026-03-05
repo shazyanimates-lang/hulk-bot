@@ -5,25 +5,24 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install
+      - name: Install Tools
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg
-          pip install requests
-      - name: Run
+          pip install requests Pillow # Pillow zaroori hai local image ke liye
+      - name: Run Bot
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           ELEVEN_API_KEY: ${{ secrets.ELEVEN_API_KEY }}
         run: python bot.py
       - name: Upload
-        if: always() # Hamesha upload karein logs ke liye
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Hulk-Final-Video
+          name: Hulk-Video
           path: hulk_video.mp4
           
