@@ -1,40 +1,26 @@
 name: Daily Hulk Bot
-
 on:
-  workflow_dispatch: # Manual button ke liye
-  schedule:
-    - cron: '0 0 * * *' # Rozana auto-run ke liye
-
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-
-      - name: Install System Dependencies
+      - name: Install Dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-
-      - name: Install Python Libraries
-        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
           pip install requests gTTS Pillow
-
       - name: Run Bot Script
-        run: python bot.py 
-
-      - name: Upload Video Artifact
-        if: always() # Script fail bhi ho tab bhi check karega
+        run: python bot.py
+      - name: Upload Video
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Hulk-Viral-Video
           path: short_video.mp4
-          if-no-files-found: warn
           
