@@ -1,26 +1,38 @@
 name: Hulk 90s Pro Bot
+
 on:
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-      - name: Install
+          python-version: "3.12"
+
+      - name: Install Dependencies
         run: |
-          sudo apt-get update && sudo apt-get install -y ffmpeg
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --upgrade pip
           pip install requests
-      - name: Run
+
+      - name: Run Bot
         env:
           ELEVEN_API_KEY: ${{ secrets.ELEVEN_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python bot.py
-      - name: Upload
+
+      - name: Upload Video
         uses: actions/upload-artifact@v4
         with:
           name: Hulk-90s-Video
-          path: short_video.mp4
-          
+          path: hulk_video.mp4
