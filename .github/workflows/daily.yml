@@ -9,27 +9,23 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
       - name: Install Dependencies
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg
           pip install requests
-
       - name: Run AI Hulk Bot
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           ELEVEN_API_KEY: ${{ secrets.ELEVEN_API_KEY }}
         run: python bot.py
-
-      - name: Upload Final Video
-        if: success() # Sirf kamyabi par upload karein
+      - name: Upload Video
+        if: always() # Taaki fail ho tab bhi logs check kar saken
         uses: actions/upload-artifact@v4
         with:
-          name: Hulk-90s-Short
+          name: Hulk-90s-Video
           path: hulk_video.mp4
           
