@@ -5,7 +5,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15 # Render ke liye kaafi hai
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -21,7 +20,6 @@ jobs:
           ELEVEN_API_KEY: ${{ secrets.ELEVEN_API_KEY }}
         run: python bot.py
       - name: Upload
-        if: always() # Taaki artifact har baar mile
         uses: actions/upload-artifact@v4
         with:
           name: Hulk-90s-Video
