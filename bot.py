@@ -1,49 +1,61 @@
 import os
 import requests
-import subprocess
-from elevenlabs import save
-from elevenlabs.client import ElevenLabs
 
-def generate_90s_hulk_video():
+def run_90s_hulk_bot():
     try:
-        # STEP 1 — MANUA L SCRIPT (Gemini error se bachne ke liye)
+        # 1. FIXED SCRIPT (Gemini bypass to avoid 429 error)
         print("🎬 Step 1: Script process ho rahi hai...")
-        
-        # Ye script itni lambi hai ke 90 seconds tak chalegi
         script_text = (
             "Ae bus walay! Roko ye khatara! Hulk ko Karachi ki sarko par chalna hai! "
-            "Bus driver: Abe ja na mote, rasta chorr! "
-            "Hulk: Kya bola? Mote? Ab dekh, ye poori bus meri hai. Ye lo paisay aur niklo yahan se! "
-            "Ab Hulk Karachi ka naya don hai aur ye CD-70 nahi, ye poori bus ab hawa mein uregi! "
+            "Bus driver bolta hai: Abe ja na mote, rasta chorr! "
+            "Hulk ko gussa aa gaya! Hulk bola: Kya bola? Mote? Ab dekh, ye poori bus meri hai. "
+            "Ye lo paisay aur niklo yahan se! Ab Hulk Karachi ka naya don hai aur ye bus ab hawa mein uregi! "
             "Sab log rasta chorr do, warna Hulk ghussay mein sab kuch tor dega! "
             "Showroom walay ne gari nahi di, toh Hulk ne poori transport company kharid li. "
             "Ab bolo, kiska waqt hai? Karachi walay ho jao tayyar, Hulk aa gaya hai!"
         )
 
-        # STEP 2 — ELEVENLABS VOICE
+        # 2. ELEVENLABS DIRECT API (Library bypass to avoid AttributeError)
         print("🎙️ Step 2: ElevenLabs voice generate kar raha hai...")
-        client = ElevenLabs(api_key=os.getenv("ELEVEN_API_KEY"))
-        audio = client.generate(text=script_text, voice="Adam", model="eleven_multilingual_v2")
-        save(audio, "voice.mp3")
+        eleven_key = os.getenv("ELEVEN_API_KEY")
+        voice_id = "pNInz6obpgDQGcFmaJgB" # Adam's Voice ID
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+        
+        headers = {
+            "Accept": "audio/mpeg",
+            "Content-Type": "application/json",
+            "xi-api-key": eleven_key
+        }
+        
+        data = {
+            "text": script_text,
+            "model_id": "eleven_multilingual_v2",
+            "voice_settings": {"stability": 0.5, "similarity_boost": 0.5}
+        }
+        
+        response = requests.post(url, json=data, headers=headers)
+        if response.status_code == 200:
+            with open("voice.mp3", "wb") as f:
+                f.write(response.content)
+            print("✅ Voice ready!")
+        else:
+            print(f"❌ ElevenLabs Error: {response.text}")
+            return
 
-        # STEP 3 — IMAGE
+        # 3. IMAGE DOWNLOAD
         print("🖼️ Step 3: Image ready ho rahi hai...")
         img_url = "https://w0.peakpx.com/wallpaper/559/393/HD-wallpaper-hulk-3d-hulk-superhero-green-man-marvel-avengers.jpg"
         with open("hulk.jpg", "wb") as f:
             f.write(requests.get(img_url).content)
 
-        # STEP 4 — VIDEO RENDER (Force 90 Seconds)
+        # 4. FFMPEG RENDER (Pakka 90 Seconds)
         print("🎥 Step 4: Video render ho raha hai (90s)...")
-        # Is baar hum loop ko audio ki length tak nahi balki pakka 90s rakhenge
-        cmd = [
-            "ffmpeg", "-y", "-loop", "1", "-i", "hulk.jpg", "-i", "voice.mp3",
-            "-c:v", "libx264", "-t", "90", "-pix_fmt", "yuv420p",
-            "-vf", "scale=1080:1920,setsar=1", "-c:a", "aac", "short_video.mp4"
-        ]
-        subprocess.run(cmd)
-        print("✅ Video successfully created: short_video.mp4")
+        os.system("ffmpeg -y -loop 1 -i hulk.jpg -i voice.mp3 -t 90 -vf \"scale=1080:1920,setsar=1\" -c:v libx264 -preset ultrafast -pix_fmt yuv420p -c:a aac -shortest short_video.mp4")
+        print("✅ DONE: short_video.mp4 tayyar hai!")
 
     except Exception as e:
-        print("❌ Error:", e)
+        print(f"❌ Critical Error: {e}")
 
-generate_90s_hulk_video()
+if __name__ == "__main__":
+    run_90s_hulk_bot()
+    
