@@ -1,7 +1,9 @@
 name: Daily Hulk Bot
 
 on:
-  workflow_dispatch: # Taaki aap manual button daba kar run kar sakein
+  workflow_dispatch: # Manual button ke liye
+  schedule:
+    - cron: '0 0 * * *' # Rozana auto-run ke liye
 
 jobs:
   build:
@@ -28,11 +30,11 @@ jobs:
       - name: Run Bot Script
         run: python bot.py 
 
-      - name: Upload Generated Video
-        if: always() # Agar script fail bhi ho jaye tab bhi check karega
+      - name: Upload Video Artifact
+        if: always() # Script fail bhi ho tab bhi check karega
         uses: actions/upload-artifact@v4
         with:
-          name: Hulk-Video
+          name: Hulk-Viral-Video
           path: short_video.mp4
-          if-no-files-found: warn # Agar file na milti toh warning dega
+          if-no-files-found: warn
           
