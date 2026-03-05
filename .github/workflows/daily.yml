@@ -10,19 +10,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install Tools
+      - name: Install
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg
-          pip install requests Pillow 
-      - name: Run Bot
+          pip install requests
+      - name: Run
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           ELEVEN_API_KEY: ${{ secrets.ELEVEN_API_KEY }}
         run: python bot.py
-      - name: Upload Video
+      - name: Upload
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Hulk-Final-Result
+          name: Hulk-90s-Video
           path: hulk_video.mp4
           
