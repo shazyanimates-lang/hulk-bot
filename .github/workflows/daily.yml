@@ -1,29 +1,24 @@
-name: Hulk Pro AI Bot
+name: Hulk 90s Pro Bot
 on:
   workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-      - name: Install Tools
+          python-version: '3.12'
+      - name: Install
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg
-          pip install requests elevenlabs google-generativeai Pillow
-      - name: Run Bot
+          pip install requests elevenlabs Pillow
+      - name: Run
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           ELEVEN_API_KEY: ${{ secrets.ELEVEN_API_KEY }}
         run: python bot.py
-      - name: Upload Video
-        if: always()
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: Hulk-Final-Short
+          name: Hulk-90s-Video
           path: short_video.mp4
-          
