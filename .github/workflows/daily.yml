@@ -1,4 +1,4 @@
-name: Hulk Final Fix
+name: Hulk Pro AI Bot
 on:
   workflow_dispatch:
 jobs:
@@ -7,20 +7,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Python Setup
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       - name: Install Tools
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg
-          pip install requests gTTS Pillow
+          pip install requests elevenlabs google-genai Pillow
       - name: Run Bot
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ELEVEN_API_KEY: ${{ secrets.ELEVEN_API_KEY }}
         run: python bot.py
       - name: Upload Video
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Hulk-Video
+          name: Hulk-Pro-Video
           path: short_video.mp4
           
