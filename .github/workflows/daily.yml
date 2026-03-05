@@ -1,21 +1,30 @@
 name: Daily Hulk Bot
+
 on:
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+
       - name: Install Libs
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
-          pip install requests gTTS
+          pip install requests gTTS Pillow # Pillow yahan add kar di hai
+
       - name: Run Bot
         run: python bot.py 
+
       - name: Upload Video
         if: always()
         uses: actions/upload-artifact@v4
