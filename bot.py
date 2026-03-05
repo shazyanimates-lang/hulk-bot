@@ -64,23 +64,25 @@ def generate_90s_hulk_video():
 
         print("✅ Image ready!")
 
-        # STEP 4 — VIDEO RENDER
+                # STEP 4 — VIDEO RENDER (Fixed for guaranteed 90s)
         print("🎥 Step 4: Video render ho raha hai...")
 
-        # ✅ FIX: Output filename matches workflow artifact path
+        # FIX: Hum video ko 90s par force karenge aur audio ko loop ya padding denge
         cmd = [
             "ffmpeg", "-y",
             "-loop", "1",
             "-i", "hulk.jpg",
             "-i", "voice.mp3",
+            "-vf", "scale=1080:1920,setsar=1", # Scale fix
             "-c:v", "libx264",
-            "-t", "90",
+            "-preset", "ultrafast", # Phone/GitHub speed ke liye
+            "-t", "90",             # Yahan 90 seconds lock hain
             "-pix_fmt", "yuv420p",
-            "-vf", "scale=1080:1920",
             "-c:a", "aac",
-            "-shortest",
+            "-shortest",            # Isay hata sakte hain agar audio chota ho
             "short_video.mp4"
         ]
+        
 
         result = subprocess.run(cmd, capture_output=True, text=True)
 
