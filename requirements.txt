@@ -1,6 +1,3 @@
 google-generativeai
 elevenlabs
 moviepy
-google-api-python-client
-google-auth-oauthlib
-requests
